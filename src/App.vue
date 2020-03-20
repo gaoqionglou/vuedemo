@@ -41,17 +41,58 @@
        输出：{{myselection}}
         <h4>自定义方法 使用emit()</h4>
         <component-a @myevent="hanldeEmit">Emit</component-a>
+        <br>
+        <h4>计算属性</h4>
+        <input v-model="myValue" type="text"/> 计算属性{{myValueWithoutNumber}}
+        通过方法获取{{getMyValWithoutNumber()}}
+        <br>
+        <h4> watch </h4>
+        <input type="text" v-model="watchValue"/>
+        <ul>
+          <li v-for="(item,index) in watchList" :key="index">{{item.name}} = {{item.price}}</li>
+        </ul>
+        <button @click="changeList">changeList</button>
+        <br>
+        <h4> 组件参数传递 </h4>
+        静态值：<br>
+        <component-a data="the data from App.vue"></component-a>
+        动态值：<br>
+        <input type="text" v-model="myValue"/>
+        <component-a :my-value="myValue">
+        <p slot="header">xxx header</p>
+        <p slot="footer">xxx footer</p>
+        </component-a>
+        <br>
+        <h4>动态组件</h4>
+        <button @click="changeView">changeView</button>
+        <p :is="currentView"></p>
   </div>
 </template>
 
 <script>
 import componentA from './components/a'
+import Vue from 'vue'
+import componentB from './components/b'
+import HelloWorld from './components/HelloWorld'
 export default {
   components: {
-    'component-a': componentA
+    'component-a': componentA,
+    'component-b': componentB,
+    HelloWorld
   },
   data () {
     return {
+      currentView: 'component-a',
+      watchValue: '',
+      watchList: [{
+        name: '苹果',
+        price: 10
+      },
+      {
+        name: '香蕉',
+        price: 15
+      }],
+      myValue: '',
       myselection: null,
       selectOption: [{
         text: '苹果',
@@ -94,8 +135,37 @@ export default {
   methods: {
     hanldeEmit (p) {
       console.log('hanldeEmit --' + p)
+    },
+    getMyValWithoutNumber () {
+      return this.myValue.replace(/\d/g, '')
+    },
+    changeList () {
+      Vue.set(this.watchList, 1, {
+        name: 'stawberry',
+        price: 88
+      })
+      // this.tellUser()
+    },
+    tellUser () {
+      alert('list changed')
+    },
+    changeView () {
+      this.currentView = 'HelloWorld'
     }
 
+  },
+  watch: {
+    watchValue: function (val, oldVal) {
+      console.log(val + '---' + oldVal)
+    },
+    watchList: function () {
+      alert('[watch] list change')
+    }
+  },
+  computed: {
+    myValueWithoutNumber () {
+      return this.myValue.replace(/\d/g, '')
+    }
   }
 }
 </script>
