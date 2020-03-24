@@ -66,6 +66,35 @@
         <h4>动态组件</h4>
         <button @click="changeView">changeView</button>
         <p :is="currentView"></p>
+        <h4>css过渡效果</h4>
+        <div class="ab">
+          <transition name="fade">
+          <p v-show="show">I am show</p>
+          </transition>
+          <transition name="my-trans" mode="out-in">
+          <p v-if="show" key="1">I am show</p>
+          <p key="2" v-else>not in show</p>
+          </transition>
+           <button @click="show = !show">Toggle</button>
+          <transition name="fade" mode="out-in">
+          <p :is="currentView">w</p>
+          </transition>
+           <button @click="toggleComponent">Toggle组件</button>
+        </div>
+        <h4>JS过渡效果</h4>
+        <div>
+          <transition
+          @before-enter="beforeEnter"
+          @enter="enter"
+          @leave="leave"
+          :css="false">
+          <p class="animate-p" v-show="show">showing content</p>
+          </transition>
+        </div>
+        <h4>自定义指令</h4>
+        <p v-color="'red'">自定义指令1</p>
+        <p v-customcolor="'green'"> 自定义指令2</p>
+        <input type="text" v-focus>
   </div>
 </template>
 
@@ -73,15 +102,31 @@
 import componentA from './components/a'
 import Vue from 'vue'
 import componentB from './components/b'
+import componentC from './components/c'
 import HelloWorld from './components/HelloWorld'
 export default {
   components: {
     'component-a': componentA,
     'component-b': componentB,
+    'component-c': componentC,
     HelloWorld
+  },
+  directives: {
+    color: function (el, binding) {
+      el.style.color = binding.value
+    },
+    customcolor: function (el, binding) {
+      el.style.color = binding.value
+    },
+    focus: {
+      inserted (el, binding) {
+        el.focus()
+      }
+    }
   },
   data () {
     return {
+      show: true,
       currentView: 'component-a',
       watchValue: '',
       watchList: [{
@@ -134,7 +179,8 @@ export default {
   },
   methods: {
     hanldeEmit (p) {
-      console.log('hanldeEmit --' + p)
+      var a = this.$http.get('https://www.baidu.com')
+      console.log('hanldeEmit --' + a)
     },
     getMyValWithoutNumber () {
       return this.myValue.replace(/\d/g, '')
@@ -151,8 +197,38 @@ export default {
     },
     changeView () {
       this.currentView = 'HelloWorld'
+    },
+    toggleComponent () {
+      if (this.currentView === 'component-c') {
+        this.currentView = 'component-b'
+      } else {
+        this.currentView = 'component-c'
+      }
+    },
+    beforeEnter: function (el) {
+      $(el).css({
+        left: '-500px',
+        opacity: 0
+      })
+    },
+    enter: function (el, done) {
+      $(el).animate({
+        left: 0,
+        opacity: 1
+      }, {
+        duration: 1500,
+        complete: done
+      })
+    },
+    leave: function (el, done) {
+      $(el).animate({
+        left: '500px',
+        opacity: 0
+      }, {
+        duration: 1500,
+        complete: done
+      })
     }
-
   },
   watch: {
     watchValue: function (val, oldVal) {
@@ -177,6 +253,12 @@ a {
 html {
   height: 100%;
 }
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
 .red-font {
   color: red;
 }
@@ -185,5 +267,27 @@ html {
 }
 .weight-font {
   font-weight: bolder;
+}
+.fade-enter-active, .fade-leave-active{
+  transition: opacity .5s ease-out;
+}
+.fade-enter, .fade-leave-active{
+  opacity: 0;
+}
+.my-trans-enter-active, .my-trans-leave-active {
+  transition: all .5s ease-out;
+}
+.my-trans-enter {
+  transform: translateX(-500px);
+  opacity: 0;
+}
+.my-trans-leave-active{
+  transform: translateX(500px);
+  opacity: 0;
+}
+.animate-p {
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 </style>

@@ -2,11 +2,20 @@
 
 module.exports = {
   root: true,
+  //
+  "globals":{
+    "document": true,
+    "localStorage": true,
+    "window": true,
+    "done": true
+  },
   parserOptions: {
     parser: 'babel-eslint'
   },
   env: {
     browser: true,
+    jquery: true,
+    node: true
   },
   extends: [
     // https://github.com/vuejs/eslint-plugin-vue#priority-a-essential-error-prevention
